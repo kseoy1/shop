@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.ProductMapper">
+	<select id="prolist" resultType="com.example.demo.vo.ProductVo">
+		select * from product where pcode like concat(#{pcode},'%') order by ${str}
+		limit #{index}, 20
+	</select>
+	<select id="getChong" resultType="int">
+		select ceil( count(*)/20 ) from product where pcode like
+		concat(#{param},'%')
+	</select>
+	<select id="getDaeName" resultType="String">
+		select name from dae where code=#{dae}
+	</select>
+	<select id="getJungName" resultType="String">
+		select name from jung where daecode=#{daecode} and code=#{jung}
+	</select>
+	<select id="getSoName" resultType="String">
+		select name from so where daejung=#{daejung} and code=#{so}
+	</select>
+	<select id="procontent"
+		resultType="com.example.demo.vo.ProductVo">
+		select * from product where pcode=#{pcode}
+	</select>
+	<select id="getMade" resultType="String">
+		select name from comp where code=#{made}
+	</select>
+	<insert id="addjjim">
+		insert into jjim(pcode,userid,writeday)
+		values(#{pcode},#{userid},now())
+	</insert>
+	<delete id="deljjim">
+		delete from jjim where userid=#{userid} and pcode=#{pcode}
+	</delete>
+	<select id="isjjim" resultType="boolean">
+		select count(*) from jjim where pcode=#{pcode} and userid=#{userid}
+	</select>
+	<insert id="cartAdd">
+		insert into cart(pcode,su,userid,writeday)
+		values(#{pcode},#{su},#{userid},now())
+	</insert>
+	<select id="isCart" resultType="com.example.demo.vo.ProductVo">
+		select su,no from cart
+		where pcode=#{pcode} and userid=#{userid}
+	</select>
+	<update id="cartUp">
+		update cart set su=#{hap} where no=#{no}
+	</update>
+	<select id="cartView" resultType="HashMap">
+		select p.pcode,p.title, p.pimg, p.price, p.bprice, p.su as psu, c.su , c.no
+		from cart as c inner join product as p
+		on c.pcode=p.pcode and c.userid=#{userid}
+	</select>
+	<update id="changeSu">
+		update cart set su=#{su}
+		where no=#{no}
+	</update>
+	<delete id="cartDel">
+		delete from cart where no=#{no}
+	</delete>
+	<select id="jjimView" resultType="HashMap">
+		select p.pimg, p.title, p.bprice, p.price, j.no, j.pcode,
+		(select count(*) from cart where cart.pcode=j.pcode and userid=#{userid}) as
+		cnt
+		from jjim as j inner join product as p
+		on j.pcode=p.pcode and userid=#{userid}
+	</select>
+	<delete id="jjimDel">
+		delete from jjim where no=#{no}
+	</delete>
+	<select id="getMember" resultType="com.example.demo.vo.MemberVo">
+		select * from member where userid=#{userid}
+	</select>
+	<select id="getBaesong"
+		resultType="com.example.demo.vo.BaesongVo">
+		select * from baesong where userid=#{userid} and gibon=1
+	</select>
+	<select id="getBaesong2"
+		resultType="com.example.demo.vo.BaesongVo">
+		select * from baesong where userid=#{userid} order by no desc limit 1
+	</select>
+	<update id="chgPhone">
+		update member set phone=#{phone}
+		where userid=#{userid}
+	</update>
+	<select id="baelist" resultType="com.example.demo.vo.BaesongVo">
+		select * from baesong where userid=#{userid} order by gibon desc
+	</select>
+	<insert id="baeWriteOk"
+		parameterType="com.example.demo.vo.BaesongVo">
+		insert into baesong(name,phone,zip,juso,jusoEtc,userid,req,gibon)
+		values(#{name},#{phone},#{zip},#{juso},#{jusoEtc},#{userid},#{req},#{gibon})
+	</insert>
+	<update id="setGibon">
+		update baesong set gibon=0 where userid=#{userid}
+	</update>
+	<select id="baeUpdate"
+		resultType="com.example.demo.vo.BaesongVo">
+		select * from baesong where no=#{no}
+	</select>
+	<update id="baeUpdateOk"
+		parameterType="com.example.demo.vo.BaesongVo">
+		update baesong set name=#{name}, phone=#{phone}, zip=#{zip},
+		juso=#{juso}, jusoEtc=#{jusoEtc}, req=#{req}, gibon=#{gibon}
+		where no=#{no}
+	</update>
+	<delete id="baeDelete">
+		delete from baesong where no=#{no}
+	</delete>
+	<update id="setReq">
+		update baesong set req=#{req}
+		where no=#{no}
+	</update>
+	<select id="getCode" resultType="int">
+		select ifnull( max( right(jumuncode,3) ) ,0)+1
+		from gumae
+		where jumuncode like concat(#{jumuncode},'%')
+	</select>
+	<insert id="progumaeOk"
+		parameterType="com.example.demo.vo.GumaeVo">
+		insert into
+		gumae(userid,baeno,pcode,su,pay,bank,card,halbu,tongsin,sudan,chongprice,juk,writeday,jumuncode)
+		values(#{userid},#{baeno},#{pcode},#{su},#{pay},#{bank},#{card},
+		#{halbu},#{tongsin},#{sudan},#{chongprice},#{juk},now(),#{jumuncode})
+	</insert>
+	<!-- <select id="jumunview" resultType="com.example.demo.vo.GumaeVo"> select 
+		* from gumae where jumuncode=#{jumuncode} </select> -->
+	<select id="jumunview" resultType="HashMap">
+		select p.pimg, p.price, p.title, p.halin, p.btime, p.bprice,
+		b.name, b.phone, b.zip, b.juso, b.jusoEtc,
+		g.su
+		from gumae as g inner join product as p on g.pcode=p.pcode
+		inner join baesong as b on g.baeno=b.no
+		where jumuncode=#{jumuncode}
+	</select>
+	<select id="getBaesong3"
+		resultType="com.example.demo.vo.BaesongVo">
+		select * from baesong where no=#{no}
+	</select>
+	<select id="getProduct"
+		resultType="com.example.demo.vo.ProductVo">
+		select * from product where pcode=#{pcode}
+	</select>
+	<update id="productSubSu">
+		update product set su=su-${su} where pcode=#{pcode}
+	</update>
+	<delete id="cartGumaeDel">
+		delete from cart where pcode=#{pcode} and userid=#{userid}
+	</delete>
+	<update id="addPansu">
+		update product set pansu=pansu+${su} where pcode=#{pcode}
+	</update>
+	<select id="getCart" resultType="HashMap">
+		select p.pcode,p.title, p.pimg, p.price, p.bprice,
+		p.su as psu
+		from product as p
+		where p.pcode=#{pcode}
+	</select>
+	<insert id="setCart">
+		insert into cart(userid,pcode,su,writeday)
+		values(#{userid},#{pcode},#{su},curdate())
+	</insert>
+	<select id="getReview" resultType="com.example.demo.vo.ReviewVo">
+		select * from review where pcode=#{pcode}
+	</select>
+	<select id="getGroup" resultType="int">
+		select ifnull(max(grp),0)+1 from quest
+	</select>
+	<insert id="munOk">
+		insert into quest(userid,title,pcode,content,writeday,seq,grp)
+		values(#{userid},#{title},#{pcode},#{content},now(),0,#{grp})
+	</insert>
+	<select id="getQuest" resultType="com.example.demo.vo.QuestVo">
+		select * from quest where pcode=#{pcode} order by grp
+	</select>
+	<delete id="questDel">
+		delete from quest where no=#{no}
+	</delete>
+	<update id="singo">
+		update review set singo=singo+1 where no=#{no}
+	</update>
+</mapper> 
+
+
