@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.MainMapper">
+  <select id="getNewpro" resultType="com.example.demo.vo.ProductVo">
+  	select * from product order by writeday desc limit 5
+  </select>
+  <select id="getBest" resultType="com.example.demo.vo.ProductVo">
+     select * from product order by pansu desc limit 5
+  </select>
+  <select id="getSale" resultType="com.example.demo.vo.ProductVo">
+     select * from product order by halin desc limit 5
+  </select>
+  <select id="getEvent" resultType="com.example.demo.vo.ProductVo">
+     select * from product order by pansu desc, halin desc limit 5
+  </select>
+</mapper>

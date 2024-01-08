@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.MypageMapper">
+	<select id="myinfo" resultType="com.example.demo.vo.MemberVo">
+		select * from member where userid=#{userid}
+	</select>
+	<update id="chgName">
+		update member set name=#{name} where userid=#{userid}
+	</update>
+	<update id="chgPhone">
+		update member set phone=#{phone} where userid=#{userid}
+	</update>
+	<update id="chgEmail">
+		update member set email=#{email} where userid=#{userid}
+	</update>
+	<select id="opwdChk" resultType="String">
+		select count(*) from member where userid=#{userid} and pwd=#{pwd}
+	</select>
+	<select id="isPwd" resultType="boolean">
+    	select count(*) from member where userid=#{userid} and pwd=#{pwd}
+  	</select>
+	<update id="pwdChange">
+		update member set pwd=#{pwd} where userid=#{userid}
+	</update>
+	<select id="mygumae" resultType="HashMap">
+		select p.title, p.pimg, p.price, p.btime, p.bprice , p.halin, p.pcode,
+		g.writeday, g.su ,g.jumuncode, g.state, g.sangp, g.no from 
+	  	gumae as g inner join product as p
+	  	on g.pcode=p.pcode and userid=#{userid}
+	  	order by g.jumuncode desc
+	</select>
+	<update id="stateChange">
+		update gumae set state=#{state} where no=#{no}
+	</update>
+	<insert id="reviewOk">
+		insert into review(userid,star,content,title,pcode,gumaeno,writeday)
+   		values(#{userid},#{star},#{content},#{title},#{pcode},#{gumaeno},now())
+	</insert>
+	<update id="chgProduct">
+		update product
+	    set star=(select avg(star) from review where pcode=#{pcode}),
+	    review=review+1 
+	    where pcode=#{pcode}
+	</update>
+	<update id="chgGumae">
+    	update gumae set sangp=1 where no=#{no}
+  	</update>
+  	<insert id="mtmOk">
+  		insert into mtm(title,content,answer,phone,email,userid,writeday)
+     	values(#{title},#{content},#{answer},#{phone},#{email},#{userid},now())
+  	</insert>
+  	<select id="getReview" resultType="HashMap">
+     	select r.* , p.title as ptitle from review as r inner join product as p
+     	on r.pcode=p.pcode where userid=#{userid}
+    </select>
+  	<select id="getQuest" resultType="HashMap">
+     	select q.* , p.title as ptitle from quest as q inner join product as p
+     	on q.pcode=p.pcode where userid=#{userid}
+  	</select>
+  	<select id="getMtm" resultType="com.example.demo.vo.MtmVo">
+     	select * from mtm where userid=#{userid}
+  	</select>
+  	<update id="reviewUpdate" parameterType="com.example.demo.vo.ReviewVo">
+     	update review
+     	set star=#{star}, title=#{title}, content=#{content}
+     	where no=#{no}
+  	</update>
+  	<!-- 상품평 수정시 발생하는 별점평균값 다시 product에 수정 -->
+  	<update id="proChgStar">
+     	update product
+      	set star=(select avg(star) from review where pcode=#{pcode})
+      	where pcode=#{pcode}
+  	</update> 
+  	<delete id="reviewDel">
+    	delete from review where no=#{no}
+  	</delete>
+	<update id="setSangp">
+     	update gumae set sangp=0 where no=#{no}
+  	</update>
+	<update id="questUpdate">
+   	 	update quest set title=#{title} ,content=#{content}
+    	where no=#{no}
+ 	</update>
+	<update id="questDel">
+     	delete from quest where no=#{no}
+   	</update>
+   	<update id="memberOut">
+   		update member set state=1 where userid=#{userid}
+   	</update>
+</mapper>

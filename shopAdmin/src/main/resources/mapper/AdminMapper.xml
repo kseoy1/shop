@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.AdminMapper">
+	<select id="getDae" resultType="com.example.demo.vo.DaeVo">
+		select * from dae order by no asc
+	</select>
+	<select id="getJung" resultType="com.example.demo.vo.JungVo">
+		select * from jung where daecode=#{param} order by no asc
+	</select>
+	<select id="getSo" resultType="com.example.demo.vo.SoVo">
+		select * from so where daejung=#{param} order by no asc
+	</select>
+	<select id="getComp" resultType="com.example.demo.vo.CompVo">
+		select * from comp order by no asc
+	</select>
+	<select id="getPcode" resultType="int">
+		select ifnull(max(right(pcode,3))+1,1) from product 
+      	where pcode like concat(#{param},'%')
+	</select>
+	<select id="plist" resultType="com.example.demo.vo.ProductVo">
+      	select product.* ,
+      	(select count(*) from review where pcode=product.pcode) as cnt,
+      	(select sum(singo) from review where pcode=product.pcode) as singo
+      	from product order by cnt desc
+    </select>
+	<update id="setPcode">
+		update product set pcode=#{param2} where no=#{param1}
+	</update>
+	<insert id="productAddOk">
+		insert into product(pcode,pimg,dimg,title,price,halin,su,bprice,btime,juk,writeday)
+		values(#{pcode},#{pimg},#{dimg},#{title},#{price},#{halin},#{su},#{bprice},#{btime},#{juk},now()) 
+	</insert>
+	
+	<select id="gumaeState">
+		select * from gumae order by no desc
+	</select>
+	<select id="getProduct" resultType="com.example.demo.vo.ProductVo">
+		select * from product where pcode=#{pcode}
+	</select>
+	<select id="getBaesong" resultType="com.example.demo.vo.BaesongVo">
+		select * from baesong where no=#{no}
+	</select>
+	<update id="stateChange">
+		update gumae set state=#{state} where no=#{no}
+	</update>
+	<select id="memberlist" resultType="com.example.demo.vo.MemberVo">
+		select * from member order by userid asc
+	</select>
+	<update id="memberOut">
+		update member set state=2 where no=#{no}
+	</update>
+	<select id="adminReview" resultType="com.example.demo.vo.ReviewVo">
+		select * from review where pcode=#{pcode} order by no desc
+	</select>
+	<delete id="reviewDel">
+		delete from review where no=#{no}
+	</delete>
+	<select id="answerlist" resultType="HashMap">
+		 select q.* , p.title as ptitle,
+	     (select count(*) from quest where grp=q.grp and seq=1) as cnt      
+	     from quest as q 
+	     inner join product as p
+	     on q.pcode=p.pcode order by grp desc , seq asc
+	</select>
+	<insert id="questOk">
+		insert into quest(title,content,writeday,userid,pcode,grp,seq)
+		values(#{title},#{content},now(),'admin',#{pcode},#{grp},1)
+	</insert>
+	<select id="getMtm" resultType="com.example.demo.vo.MtmVo">
+		select * from mtm order by no desc
+	</select>
+	<insert id="mtmOk">
+		insert into mtmok(content,mtmno,writeday)
+		values(#{content},#{mtmno},now())
+	</insert>
+	<update id="chgState">
+		update mtm set state=1 where no=#{no}
+	</update>
+</mapper>
